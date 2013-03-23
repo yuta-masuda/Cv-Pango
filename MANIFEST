@@ -1,0 +1,7 @@
+Changes
+lib/Cv/Pango.pm
+Makefile.PL
+MANIFEST
+README
+t/Cv-Pango.t
+t/pod-coverage.t
