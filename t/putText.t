@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 use utf8;
-
 use Test::More;
+use Test::Exception;
 BEGIN {
-	plan skip_all => "Pango required"
-        unless eval "use Pango; 1";
+	eval "use Pango";
+	plan skip_all => "Pango required" if $@;
 	plan qw(no_plan);
 }
 

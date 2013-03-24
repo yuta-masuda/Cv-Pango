@@ -41,9 +41,9 @@ our $VERSION = '0.26';
 		}
 		my $type = $img->type;
 		my $cairo_format; # argb32, rgb24, a8, a1, rgb16-565 
-		$cairo_format = 'a8'     if ($type == Cv::CV_8UC1);
-		# $cairo_format = 'rgb24'  if ($type == Cv::CV_8UC3);
-		$cairo_format = 'argb32' if ($type == Cv::CV_8UC4);
+		$cairo_format = 'a8'     if $type == Cv::CV_8UC1;
+		# $cairo_format = 'rgb24'  if $type == Cv::CV_8UC3;
+		$cairo_format = 'argb32' if $type == Cv::CV_8UC4;
 		goto \&cvPutText unless $cairo_format;
 		$img->getRawData(my $data, my $step, my $size);
 		my $surface = Cairo::ImageSurface->create_for_data(
@@ -70,11 +70,13 @@ our $VERSION = '0.26';
 		$oimg;
 	}
 
-	sub boxText {
+	sub boxText { goto \&BoxText }
+
+	sub BoxText {
 		my ($img, $text, $org, $font, $color) = @_;
 		$font = Pango::FontDescription->from_string($font)
 			unless ref $font;
-		$font->getTextSize($text, my $sz, my $b);
+		Cv->GetTextSize($text, $font, my $sz, my $b);
 
 		# A ---- D
 		# |      |
@@ -96,32 +98,38 @@ our $VERSION = '0.26';
 }
 
 {
-	package Pango::FontDescription;
+	package Cv;
+	no warnings 'redefine';
 
-	sub PANGO_SCALE { 1024 } # see pango-1.0/pango/pango-types.h
-
-	sub getTextSize { goto &GetTextSize }
-	sub GetTextSize { goto &cvGetTextSize }
-	sub cvGetTextSize {
-		my $font = shift;
-		my $text = shift;
-		my $surface = Cairo::ImageSurface->create('a8', 16, 16);
-		my $cr = Cairo::Context->create($surface);
-		my $layout = Pango::Cairo::create_layout($cr);
-		$layout->set_font_description($font);
-		$layout->set_text($text);
-		Pango::Cairo::layout_path($cr, $layout);
-		my ($w, $hh, $bb) = map { $_ / PANGO_SCALE } (
-			$layout->get_size(),
-			$layout->get_baseline()
-		);
-		my ($h, $b) = ($bb, -$bb + $hh);
-		if (@_ >= 1) {
-			$_[0] = [] unless ref $_[0] eq 'ARRAY';
-			@{$_[0]} = ($w, $h);
-		}
-		if (@_ >= 2) {
-			$_[1] = $b;
+	sub GetTextSize {
+		shift if ($_[0] eq __PACKAGE__ && @_ == 5);
+		Usage("textString, font, textSize, baseline") unless @_ == 4;
+		if (ref $_[1] eq 'Cv::Font') {
+			goto \&cvGetTextSize;
+		} elsif (ref $_[1] eq 'Pango::FontDescription') {
+			my $text = shift;
+			my $font = shift;
+			my $PANGO_SCALE = 1024; # see pango-1.0/pango/pango-types.h
+			my $surface = Cairo::ImageSurface->create('a8', 16, 16);
+			my $cr = Cairo::Context->create($surface);
+			my $layout = Pango::Cairo::create_layout($cr);
+			$layout->set_font_description($font);
+			$layout->set_text($text);
+			Pango::Cairo::layout_path($cr, $layout);
+			my ($w, $hh, $bb) = map { $_ / $PANGO_SCALE } (
+				$layout->get_size(),
+				$layout->get_baseline()
+			);
+			my ($h, $b) = ($bb, -$bb + $hh);
+			if (@_ >= 1) {
+				$_[0] = [] unless ref $_[0] eq 'ARRAY';
+				@{$_[0]} = ($w, $h);
+			}
+			if (@_ >= 2) {
+				$_[1] = $b;
+			}
+		} else {
+			Carp::croak "unknown font @{[ ref $_[1] ]} in Cv::GetTextSize";
 		}
 	}
 }
@@ -160,11 +168,6 @@ Replace C<Cv::Arr::PutText()> itself.
 
 =item *
 
-This package uses the object of Pango::FontDescription.
-So put cvGetTextSize() for this namespace.
-
-Please tell me if you know how patch better.
-
 =back
 
 =head1 SEE ALSO
@@ -175,13 +178,11 @@ C<Cv>, C<Pango>
 
 MASUDA Yuta E<lt>yuta.cpan@gmail.comE<gt>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENCE
 
-Copyright (C) 2012 by MASUDA Yuta
+Copyright (c) 2013 by Masuda Yuta.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.8 or,
-at your option, any later version of Perl 5 you may have available.
-
+All rights reserved. This program is free software; you can
+redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

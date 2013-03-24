@@ -1,7 +1,10 @@
 Changes
 lib/Cv/Pango.pm
+lib/Cv/Pango/JA.pod
 Makefile.PL
 MANIFEST
+MANIFEST.SKIP
 README
-t/Cv-Pango.t
+t/getTextSize.t
 t/pod-coverage.t
+t/putText.t
