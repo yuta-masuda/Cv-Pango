@@ -21,6 +21,11 @@ WriteMakefile(
 		Pango => 1.223,
 	},
 	%Cv::Config::MM,
-	INC => '-I. -I..',
+	INC => '-I.',
 	XSOPT => '-C++ -hiertype',
+	macro => {
+		INSTALLPRIVLIB => '$(INSTALLARCHLIB)',
+		INSTALLSITELIB => '$(INSTALLSITEARCH)',
+		INSTALLVENDORLIB => '$(INSTALLVENDORARCH)',
+	},
 );
