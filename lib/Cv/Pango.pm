@@ -30,7 +30,7 @@ use Carp;
 use Pango;
 use Cv 0.26;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 require Exporter;
 

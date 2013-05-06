@@ -14,6 +14,11 @@ WriteMakefile(
 	VERSION_FROM => 'lib/Cv/Pango.pm',
 	ABSTRACT_FROM => 'lib/Cv/Pango.pm',
 	AUTHOR => 'MASUDA Yuta <yuta.cpan@gmail.com>',
+	CONFIGURE_REQUIRES => {
+		ExtUtils::MakeMaker => 0,
+		ExtUtils::ParseXS => 2.22,
+		ExtUtils::PkgConfig => 1.12,
+	},
 	PREREQ_PM => {
 		Cv => 0.26,
 		ExtUtils::ParseXS => 2.22,
