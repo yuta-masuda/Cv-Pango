@@ -20,7 +20,7 @@ WriteMakefile(
 		ExtUtils::ParseXS => 2.22,
 	},
 	PREREQ_PM => {
-		Cv => 0.26,
+		Cv => 0.28,
 		ExtUtils::ParseXS => 2.22,
 		ExtUtils::PkgConfig => 1.12,
 		Pango => 1.223,
